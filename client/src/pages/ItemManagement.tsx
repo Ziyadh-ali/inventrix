@@ -46,7 +46,6 @@ export const ItemManagement = () => {
             limit: itemsPerPage,
             skip,
         });
-        console.log(response)
         setItems(response.items.data || []);
     };
 
