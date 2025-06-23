@@ -23,7 +23,7 @@ export class ItemRepository extends BaseRepository<ItemDocument> implements IIte
             for (const saleItem of sale.items) {
                 const itemName = saleItem.name.toString(); // name is a string
                 const current = salesCountMap.get(itemName) || 0;
-                salesCountMap.set(itemName, current + saleItem.quantity);
+                salesCountMap.set(itemName, Number(current) + Number(saleItem.quantity));
             }
         }
 
