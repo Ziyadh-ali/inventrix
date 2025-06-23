@@ -1,0 +1,42 @@
+# === COMMON ===
+node_modules/
+dist/
+.env
+.env.*    # for client/backward compatibility
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === OS-specific ===
+.DS_Store
+Thumbs.db
+
+# === api (Express + Node.js) ===
+/api/node_modules
+/api/dist``
+/api/build
+/api/.env
+/api/*.log
+
+# === client (React + Vite) ===
+/client/node_modules
+/client/dist
+/client/.env
+/client/.vite
+/client/.next
+/client/.turbo
+/client/.output
+
+# === IDEs ===
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# === Testing / Coverage ===
+coverage/
+*.lcov
