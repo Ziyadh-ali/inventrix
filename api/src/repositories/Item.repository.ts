@@ -16,12 +16,11 @@ export class ItemRepository extends BaseRepository<ItemDocument> implements IIte
 
         const sales = await SaleModel.find();
 
-        // Map item name to total sold
         const salesCountMap = new Map<string, number>();
 
         for (const sale of sales) {
             for (const saleItem of sale.items) {
-                const itemName = saleItem.name.toString(); // name is a string
+                const itemName = saleItem.name.toString();
                 const current = salesCountMap.get(itemName) || 0;
                 salesCountMap.set(itemName, Number(current) + Number(saleItem.quantity));
             }

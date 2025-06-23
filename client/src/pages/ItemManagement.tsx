@@ -41,15 +41,16 @@ export const ItemManagement = () => {
 
     const confirmModal = useConfirmModal();
 
-    const fetchItemList = async () => {
-        const response = await fetchItems({
-            limit: itemsPerPage,
-            skip,
-        });
-        setItems(response.items.data || []);
-    };
+
 
     useEffect(() => {
+        const fetchItemList = async () => {
+            const response = await fetchItems({
+                limit: itemsPerPage,
+                skip,
+            });
+            setItems(response.items.data || []);
+        };
         fetchItemList();
         //eslint-disable-next-line
     }, [location]);
