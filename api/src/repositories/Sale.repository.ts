@@ -10,23 +10,55 @@ export class SaleRepository extends BaseRepository<SaleDocument> implements ISal
         super(SaleModel)
     }
 
-    async getCustomerLedger(customerName: string): Promise<{ date: Date; type: "Sale"; amount: number; }[]> {
-        const sales = await SaleModel.find({ customerName });
+    async getCustomerLedger(
+        customerName: string,
+        options: { limit: number; skip: number }
+    ): Promise<{
+        data: { date: Date; type: "Sale"; amount: number }[];
+        total: number;
+    }> {
+        const { limit = 10, skip = 0 } = options;
 
-        const saleEntries = sales.map((sale) => ({
+        const sales = await SaleModel.find({ customerName })
+            .skip(skip)
+            .limit(limit);
+        console.log(sales)
+        const total = await SaleModel.countDocuments({ customerName });
+
+        const data = sales.map((sale) => ({
             date: sale.date,
             type: "Sale" as const,
-            amount: sale.items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+            amount: sale.items.reduce(
+                (sum, item) => sum + item.price * item.quantity,
+                0
+            ),
         }));
 
-        return saleEntries;
+        return { data, total };
     }
-    async findSalesByDateRange(from: Date, to: Date): Promise<ISale[]> {
-        console.log("Repo Query Dates:", from, to);
-        const sales = await SaleModel.find({
-            date: { $gte: from, $lte: to }
-        }).lean();
-        return sales as ISale[];
+    async findSalesByDateRange(
+        from: Date,
+        to: Date,
+        options: { limit: number; skip: number }
+    ): Promise<{ data: ISale[]; total: number }> {
+
+        const { limit, skip } = options;
+
+        const total = await SaleModel.countDocuments({
+            date: { $gte: from, $lte: to },
+        });
+
+        const data = await SaleModel.find({
+            date: { $gte: from, $lte: to },
+        })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        return {
+            data: data as ISale[],
+            total,
+        };
     }
 
     async getFilteredSales(from: string, to: string, customer?: string): Promise<ISale[]> {

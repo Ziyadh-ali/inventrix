@@ -113,8 +113,8 @@ export class ItemController {
             const options = {
                 limit: parseInt(req.query.limit as string),
                 skip: parseInt(req.query.skip as string),
-                sort: req.query.sort,
             };
+
             const items = await this.itemService.findPaginated(options);
 
             res.status(STATUS_CODES.OK).json({
@@ -149,7 +149,15 @@ export class ItemController {
 
     async getItemSalesAndStock(req: Request, res: Response): Promise<void> {
         try {
-            const report = await this.itemService.getItemSalesAndStock();
+            const options = {
+                limit: parseInt(req.query.limit as string),
+                skip: parseInt(req.query.skip as string),
+                sort: req.query.sort,
+            };
+
+
+            const report = await this.itemService.getItemSalesAndStock(options);
+
             res.status(STATUS_CODES.OK).json({ report });
         } catch (error) {
             console.error("Error fetching item sales and stock report:", error);

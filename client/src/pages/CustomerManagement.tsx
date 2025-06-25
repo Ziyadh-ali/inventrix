@@ -24,55 +24,70 @@ type Customer = {
     mobile: string;
 };
 
-
 export const CustomerManagement = () => {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-    const [currentPage,] = useState(1);
+    const [totalCustomerCount, setTotalCustomerCount] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 2;
-    const skip = (currentPage - 1) * itemsPerPage;
     const location = useLocation();
-    const navigate = useNavigate()
-
+    const navigate = useNavigate();
     const confirmModal = useConfirmModal();
 
-
+    // Fetch customers when page or location changes
     useEffect(() => {
         async function fetchCustomers() {
-            const response = await fetchCustomer({
-                limit: itemsPerPage,
-                skip,
-            });
-            setCustomers(response.customers.data);
+            try {
+                const response = await fetchCustomer({
+                    limit: itemsPerPage,
+                    skip: (currentPage - 1) * itemsPerPage,
+                });
+                setCustomers(response.customers.data);
+                setTotalCustomerCount(response.customers.total);
+            } catch (error) {
+                console.log(error)
+                toast.error("Failed to fetch customers");
+            }
         }
         fetchCustomers();
-        // eslint-disable-next-line
-    }, [location]);
+    }, [currentPage, location]);
 
     const formik = useFormik({
         initialValues: { name: "", address: "", mobile: "" },
         validationSchema: customerValidationSchema,
         onSubmit: async (values, { resetForm }) => {
-            let response;
-            if (selectedCustomer) {
-                response = await editCustomer(selectedCustomer._id, {
-                    name: values.name,
-                    address: values.address,
-                    mobile: parseInt(values.mobile),
+            try {
+                let response;
+                if (selectedCustomer) {
+                    response = await editCustomer(selectedCustomer._id, {
+                        name: values.name,
+                        address: values.address,
+                        mobile: parseInt(values.mobile),
+                    });
+                    toast.success(response.message);
+                    setSelectedCustomer(null);
+                    resetForm();
+                } else {
+                    response = await addCustomer({
+                        name: values.name,
+                        address: values.address,
+                        mobile: parseInt(values.mobile),
+                    });
+                    toast.success(response.message);
+                    resetForm();
+                }
+                // Refresh customer list after add/edit
+                const responseData = await fetchCustomer({
+                    limit: itemsPerPage,
+                    skip: (currentPage - 1) * itemsPerPage,
                 });
-                toast.success(response.message);
-                setSelectedCustomer(null);
-                resetForm();
-            } else {
-                response = await addCustomer({
-                    name: values.name,
-                    address: values.address,
-                    mobile: parseInt(values.mobile),
-                });
-                toast.success(response.message);
-                resetForm();
+                setCustomers(responseData.customers.data);
+                setTotalCustomerCount(responseData.customers.total);
+                navigate("/dashboard/customers");
+            } catch (error) {
+                console.log(error);
+                toast.error("Operation failed");
             }
-            navigate("/dashboard/customers");
         },
     });
 
@@ -86,7 +101,7 @@ export const CustomerManagement = () => {
         {
             label: "Edit",
             onClick: (row: Customer) => {
-                formik.setValues(row)
+                formik.setValues(row);
                 setSelectedCustomer(row);
             },
         },
@@ -97,14 +112,28 @@ export const CustomerManagement = () => {
                     title: "Delete Customer",
                     description: `Are you sure you want to delete ${row.name}?`,
                     onConfirm: async () => {
-                        const response = await deleteCustomer(row._id);
-                        setCustomers(customers.filter((c) => c._id !== row._id));
-                        confirmModal.closeModal();
-                        navigate("/dashboard/customers");
-                        toast.success(response.message);
-                    }
+                        try {
+                            const response = await deleteCustomer(row._id);
+                            // Update customer list without full refetch
+                            setCustomers(customers.filter((c) => c._id !== row._id));
+                            setTotalCustomerCount((prev) => prev - 1);
+                            // Adjust page if current page becomes empty
+                            if (
+                                customers.length === 1 &&
+                                currentPage > 1 &&
+                                (currentPage - 1) * itemsPerPage >= totalCustomerCount - 1
+                            ) {
+                                setCurrentPage((prev) => prev - 1);
+                            }
+                            confirmModal.closeModal();
+                            toast.success(response.message);
+                        } catch (error) {
+                            console.log(error)
+                            toast.error("Failed to delete customer");
+                        }
+                    },
                 });
-            }
+            },
         },
     ];
 
@@ -184,7 +213,11 @@ export const CustomerManagement = () => {
                             columns={columns}
                             data={customers}
                             actions={actions}
-                            itemsPerPage={2}
+                            itemsPerPage={itemsPerPage}
+                            totalItems={totalCustomerCount}
+                            onPageChange={(page) => {
+                                setCurrentPage(page);
+                            }}
                         />
                     </CardContent>
                 </Card>

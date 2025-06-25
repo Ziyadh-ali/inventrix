@@ -13,19 +13,26 @@ type ItemReportData = {
 
 export const ItemsReport = () => {
   const [itemData, setItemData] = useState<ItemReportData[]>([]);
+  const [totalDataCount, setTotalDataCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 2;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchItemSalesAndStock();
-        setItemData(data.report);
+        const response = await fetchItemSalesAndStock({
+          limit: itemsPerPage,
+          skip : (currentPage -1) * itemsPerPage,
+        });
+        setItemData(response.report.data);
+        setTotalDataCount(response.report.total)
       } catch (error) {
         console.error("Error fetching item report:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [currentPage]);
 
   const columns: TableColumn<ItemReportData>[] = [
     { key: "name", header: "Item" },
@@ -35,5 +42,5 @@ export const ItemsReport = () => {
     { key: "totalSales", header: "Total" },
   ];
 
-  return <ReusableTable columns={columns} data={itemData} itemsPerPage={5} />;
+  return <ReusableTable  columns={columns} data={itemData} itemsPerPage={itemsPerPage} onPageChange={(page)=>setCurrentPage(page)} totalItems={totalDataCount} />;
 };

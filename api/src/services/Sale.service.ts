@@ -60,16 +60,17 @@ export class SaleService implements ISaleService {
 
 
 
-    async getCustomerLedger(customerName: string): Promise<
-        { date: Date; type: "Sale"; amount: number }[]
-    > {
-        const ledger = await this.saleRepo.getCustomerLedger(customerName);
+    async getCustomerLedger(customerName: string , options : {limit : number , skip : number}): Promise<{
+        data: { date: Date; type: "Sale"; amount: number }[];
+        total: number;
+    }> {
+        const ledger = await this.saleRepo.getCustomerLedger(customerName , options);
 
         return ledger;
     }
 
-    async findSalesByDateRange(from: Date, to: Date): Promise<ISale[]> {
-        return await this.saleRepo.findSalesByDateRange(from, to);
+    async findSalesByDateRange(from: Date, to: Date , options: { limit: number; skip: number }): Promise<{ data: ISale[]; total: number }> {
+        return await this.saleRepo.findSalesByDateRange(from, to , options);
     }
 
     async getFilteredSales(from: string, to: string, customer?: string): Promise<ISale[]> {

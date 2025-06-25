@@ -99,6 +99,8 @@ export class SaleController {
                 skip: parseInt(req.query.skip as string),
                 sort: req.query.sort,
             };
+
+            console.log(options);
             const sales = await this.saleService.findPaginated(options);
 
             res.status(STATUS_CODES.OK).json({
@@ -116,9 +118,12 @@ export class SaleController {
 
     async getCustomerLedger(req: Request, res: Response) {
         const { customerName } = req.params;
-
+        const options = {
+            limit: parseInt(req.query.limit as string),
+            skip: parseInt(req.query.skip as string),
+        };
         try {
-            const ledger = await this.saleService.getCustomerLedger(customerName);
+            const ledger = await this.saleService.getCustomerLedger(customerName, options);
             res.status(200).json({ ledger });
         } catch (error) {
             console.error(error);
@@ -130,18 +135,22 @@ export class SaleController {
         try {
             const from = new Date(req.query.from as string);
             const to = new Date(req.query.to as string);
+            const options = {
+                limit: parseInt(req.query.limit as string),
+                skip: parseInt(req.query.skip as string),
+            };
 
             if (isNaN(from.getTime()) || isNaN(to.getTime())) {
                 res.status(400).json({ message: "Invalid date format" });
             }
 
-            const sales = await this.saleService.findSalesByDateRange(from, to);
-            res.json(sales);
+            const sales = await this.saleService.findSalesByDateRange(from, to , options);
+            res.status(STATUS_CODES.OK).json({sales});
         } catch (err) {
             // console.error("Error in findSalesByDateRange:", err);
             res.status(500).json({ message: "Something went wrong on the server." });
         }
     }
 
-    
+
 }

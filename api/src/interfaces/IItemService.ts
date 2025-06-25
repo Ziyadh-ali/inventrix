@@ -10,5 +10,5 @@ export interface IItemService {
     delete(id: string): Promise<void>;
     findPaginated( options: { limit?: number; skip?: number; sort?: any }, query?: any ,): Promise<{data : ItemDocument[] | []; total : number}>
     findByAny(query : Partial<IItem>): Promise<ItemDocument | null>;
-    getItemSalesAndStock(): Promise<{ name: string; sold: number; stock: number ,price: number ,totalSales : number}[]>
+    getItemSalesAndStock(options : {limit : number , skip : number}): Promise<{data : { name: string; sold: number; stock: number ,price: number ,totalSales : number}[]; total : number}>
 }

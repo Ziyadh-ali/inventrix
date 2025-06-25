@@ -11,9 +11,13 @@ export class ItemRepository extends BaseRepository<ItemDocument> implements IIte
         super(ItemModel)
     }
 
-    async getItemSalesAndStock(): Promise<{ name: string; sold: number; stock: number ,price: number ,totalSales : number}[]> {
-        const items = await ItemModel.find();
+    async getItemSalesAndStock(options: { limit: number; skip: number }): Promise<{
+        data: { name: string; sold: number; stock: number; price: number; totalSales: number }[];
+        total: number;
+    }> {
+        const { limit, skip } = options;
 
+        const items = await ItemModel.find();
         const sales = await SaleModel.find();
 
         const salesCountMap = new Map<string, number>();
@@ -22,11 +26,11 @@ export class ItemRepository extends BaseRepository<ItemDocument> implements IIte
             for (const saleItem of sale.items) {
                 const itemName = saleItem.name.toString();
                 const current = salesCountMap.get(itemName) || 0;
-                salesCountMap.set(itemName, Number(current) + Number(saleItem.quantity));
+                salesCountMap.set(itemName, current + saleItem.quantity);
             }
         }
 
-        return items.map(item => {
+        const allData = items.map(item => {
             const sold = salesCountMap.get(item.name) || 0;
             const totalSales = sold * item.price;
 
@@ -38,6 +42,13 @@ export class ItemRepository extends BaseRepository<ItemDocument> implements IIte
                 totalSales,
             };
         });
+
+        const paginatedData = allData.slice(skip, skip + limit);
+
+        return {
+            data: paginatedData,
+            total: allData.length,
+        };
     }
 
     async findByAny(query: Partial<IItem>): Promise<ItemDocument | null> {

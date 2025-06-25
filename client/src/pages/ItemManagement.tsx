@@ -33,8 +33,9 @@ const itemValidationSchema = Yup.object().shape({
 export const ItemManagement = () => {
     const [items, setItems] = useState<IItem[]>([]);
     const [selectedItem, setSelectedItem] = useState<IItem | null>(null);
-    const [currentPage,] = useState(1);
-    const itemsPerPage = 5;
+    const [totalDataCount, setTotalDataCount] = useState(0);
+    const [currentPage,setCurrentPage] = useState(1);
+    const itemsPerPage = 2;
     const skip = (currentPage - 1) * itemsPerPage;
     const location = useLocation();
     const navaigate = useNavigate();
@@ -50,10 +51,11 @@ export const ItemManagement = () => {
                 skip,
             });
             setItems(response.items.data || []);
+            setTotalDataCount(response.items.total);
         };
         fetchItemList();
         //eslint-disable-next-line
-    }, [location]);
+    }, [location , currentPage]);
 
     const formik = useFormik({
         initialValues: {
@@ -199,6 +201,10 @@ export const ItemManagement = () => {
                             data={items}
                             actions={actions}
                             itemsPerPage={itemsPerPage}
+                            onPageChange={(page)=>{
+                                setCurrentPage(page)
+                            }}
+                            totalItems={totalDataCount}
                         />
                     </CardContent>
                 </Card>

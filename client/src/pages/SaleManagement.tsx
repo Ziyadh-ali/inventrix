@@ -19,9 +19,9 @@ export const SaleManagement = () => {
     const [sales, setSales] = useState<ISale[]>([]);
     const [customers, setCustomers] = useState<ICustomer[]>([]);
     const [items, setItems] = useState<IItem[]>([]);
-    const [currentPage,] = useState(1);
-    const itemsPerPage = 5;
-    const skip = (currentPage - 1) * itemsPerPage;
+    const [totalDataCount, setTotalDataCount] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 2;
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -29,14 +29,14 @@ export const SaleManagement = () => {
         async function fetchSales() {
             const response = await fetchSale({
                 limit: itemsPerPage,
-                skip,
+                skip : (currentPage - 1) * itemsPerPage,
             });
-            console.log(response.sales.data)
+            console.log(response)
             setSales(response.sales.data);
+            setTotalDataCount(response.sales.total)
         }
         fetchSales();
-        //eslint-disable-next-line
-    }, [location]);
+    }, [location , currentPage]);
 
     useEffect(() => {
         async function fetchCustomers() {
@@ -269,7 +269,11 @@ export const SaleManagement = () => {
                         <ReusableTable
                             columns={saleColumns}
                             data={sales}
-                            itemsPerPage={3}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={(page)=>{
+                                setCurrentPage(page)
+                            }}
+                            totalItems={totalDataCount}
                         />
                     </div>
                 </CardContent>

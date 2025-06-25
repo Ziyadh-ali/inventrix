@@ -105,25 +105,31 @@ export const fetchSale = async (
     return response.data
 }
 
-export const fetchCustomerLedger = async (customerName: string) => {
-    const response = await axiosInstance.get(`/sale/ledger/${customerName}`);
+export const fetchCustomerLedger = async (customerName: string, options: { limit?: number, skip?: number }) => {
+    const response = await axiosInstance.get(`/sale/ledger/${customerName}`, {
+        params: options,
+    });
     return response.data
 };
 
-export const fetchSalesByDateRange = async (from: string, to: string) => {
-    const response = await axiosInstance.get(`/sale/dateRange?from=${from}&to=${to}`);
+export const fetchSalesByDateRange = async (from: string, to: string, options: { limit: number, skip: number }) => {
+    const response = await axiosInstance.get(`/sale/dateRange?from=${from}&to=${to}`,{
+        params : options
+    });
     return response.data;
 };
 
-export const fetchItemSalesAndStock = async () => {
-    const response = await axiosInstance.get("/item/report");
+export const fetchItemSalesAndStock = async (options: { limit: number, skip: number }) => {
+    const response = await axiosInstance.get("/item/report", {
+        params: options
+    });
     return response.data;
 };
 
 export const exportSalesToExcel = async (from: string, to: string, customer?: string) => {
     const response = await axiosInstance.get("/export/excel", {
         params: { from, to, customer },
-        responseType: "blob", // important for downloading files
+        responseType: "blob",
     });
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");

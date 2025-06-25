@@ -12,7 +12,8 @@ export class BaseRepository<T extends Document> implements IRepository<T> {
     query: FilterQuery<T> = {},
     options: { limit?: number; skip?: number; sort?: any } = {}
   ): Promise<{ data: T[]; total: number }> {
-    const { limit = 10, skip = 0, sort = { createdAt: -1 } } = options;
+    const { limit = 10, skip = 0, sort = { createdAt: 1 } } = options;
+    console.log(limit)
     const [data, total] = await Promise.all([
       this.model.find(query).skip(skip).limit(limit).sort(sort),
       this.model.countDocuments(query),

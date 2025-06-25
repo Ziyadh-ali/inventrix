@@ -117,6 +117,7 @@ export class CustomerController {
             };
             const customers = await this.customerService.findPaginated(options);
 
+
             res.status(STATUS_CODES.OK).json({
                 customers,
             });

@@ -31,14 +31,14 @@ export class ItemService implements IItemService {
     }
 
     async findPaginated(options: { limit?: number; skip?: number; sort?: any; }, query?: any): Promise<{ data: ItemDocument[] | []; total: number; }> {
-        return await this.itemRepo.findPaginated(options);
+        return await this.itemRepo.findPaginated(query , options);
     }
 
     async findByAny(query: Partial<IItem>): Promise<ItemDocument | null> {
         return await this.itemRepo.findByAny(query);
     }
 
-     async getItemSalesAndStock(): Promise<{ name: string; sold: number; stock: number ,price: number ,totalSales : number}[]> {
-        return await this.itemRepo.getItemSalesAndStock();
+     async getItemSalesAndStock(options : {limit : number , skip : number}): Promise<{data : { name: string; sold: number; stock: number ,price: number ,totalSales : number}[]; total : number}> {
+        return await this.itemRepo.getItemSalesAndStock(options);
     }
 }
