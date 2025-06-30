@@ -1,18 +1,18 @@
 import * as Yup from "yup";
 
 export const loginValidationSchema = Yup.object({
-    email: Yup.string().email("Invalid email address").required("Email is required"),
-    password: Yup.string().required("Password is required"),
+  email: Yup.string().email("Invalid email address").required("Email is required"),
+  password: Yup.string().required("Password is required"),
 });
 
 export const signupValidationSchema = Yup.object({
-    email: Yup.string().email("Invalid email address").required("Email is required"),
-    password: Yup.string()
-        .min(6, "Password must be at least 6 characters")
-        .required("Password is required"),
-    confirmPassword: Yup.string()
-        .oneOf([Yup.ref("password"), "null"], "Passwords must match")
-        .required("Confirm Password is required"),
+  email: Yup.string().email("Invalid email address").required("Email is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password"), "null"], "Passwords must match")
+    .required("Confirm Password is required"),
 });
 
 export const customerValidationSchema = Yup.object({
@@ -24,13 +24,17 @@ export const customerValidationSchema = Yup.object({
 });
 
 export const saleValidationSchema = Yup.object().shape({
-  date: Yup.date().required("Sale date is required"),
+  date: Yup.date()
+    .required("Sale date is required")
+    .max(new Date(), "Future dates are not allowed"),
   customerName: Yup.string().required("Customer name is required"),
   items: Yup.array()
     .of(
       Yup.object().shape({
-        name: Yup.string().required(),
-        quantity: Yup.number().min(1).required(),
+        name: Yup.string().required("Item name is required"),
+        quantity: Yup.number()
+          .min(1, "Quantity must be at least 1")
+          .required("Quantity is required"),
       })
     )
     .min(1, "At least one item must be selected"),
