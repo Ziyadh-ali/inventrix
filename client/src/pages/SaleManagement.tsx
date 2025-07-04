@@ -58,7 +58,7 @@ export const SaleManagement = () => {
         initialValues: {
             date: null as Date | null,
             customerName: "",
-            items: [] as { name: string; quantity: number, price: number }[],
+            items: [] as { name: string; quantity: number, price: number , stock : number }[],
         },
         validationSchema: saleValidationSchema,
         onSubmit: async (values, { resetForm }) => {
@@ -91,6 +91,7 @@ export const SaleManagement = () => {
     const handleAddItem = (itemName: string) => {
         if (!formik.values.items.find(i => i.name === itemName)) {
             const matchedItem = items.find(i => i.name === itemName);
+            console.log(matchedItem);
             if (!matchedItem) return;
             formik.setFieldValue("items", [
                 ...formik.values.items,
@@ -98,6 +99,7 @@ export const SaleManagement = () => {
                     name: matchedItem.name,
                     quantity: 1,
                     price: matchedItem.price,
+                    stock: matchedItem.quantity,
                 },
             ]);
         }
@@ -200,6 +202,7 @@ export const SaleManagement = () => {
                                         <thead className="bg-gray-100 text-left">
                                             <tr>
                                                 <th className="px-4 py-2">Item</th>
+                                                <th className="px-4 py-2">Available Stock</th>
                                                 <th className="px-4 py-2 text-center">Quantity</th>
                                                 <th className="px-4 py-2 text-right">Unit Price (₹)</th>
                                                 <th className="px-4 py-2 text-right">Total (₹)</th>
@@ -210,9 +213,11 @@ export const SaleManagement = () => {
                                             {formik.values.items.map((item, index) => (
                                                 <tr key={item.name} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                                                     <td className="px-4 py-2">{item.name}</td>
+                                                    <td className="px-4 py-2">{item.stock}</td>
                                                     <td className="px-4 py-2 text-center">
                                                         <div className="flex items-center justify-center space-x-2">
                                                             <Button
+                                                                disabled= {item.quantity === 1}
                                                                 type="button"
                                                                 size="sm"
                                                                 variant="outline"
@@ -222,6 +227,7 @@ export const SaleManagement = () => {
                                                             </Button>
                                                             <span>{item.quantity}</span>
                                                             <Button
+                                                                disabled = {item.quantity === item.stock}
                                                                 type="button"
                                                                 size="sm"
                                                                 variant="outline"
@@ -263,7 +269,6 @@ export const SaleManagement = () => {
                         <Button type="submit">Save Sale</Button>
                     </form>
 
-                    {/* Sales List Table */}
                     <div className="pt-6">
                         <h3 className="font-semibold text-lg mb-2">Sales List</h3>
                         <ReusableTable
