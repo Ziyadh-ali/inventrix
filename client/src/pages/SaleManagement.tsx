@@ -29,14 +29,14 @@ export const SaleManagement = () => {
         async function fetchSales() {
             const response = await fetchSale({
                 limit: itemsPerPage,
-                skip : (currentPage - 1) * itemsPerPage,
+                skip: (currentPage - 1) * itemsPerPage,
             });
             console.log(response)
             setSales(response.sales.data);
             setTotalDataCount(response.sales.total)
         }
         fetchSales();
-    }, [location , currentPage]);
+    }, [location, currentPage]);
 
     useEffect(() => {
         async function fetchCustomers() {
@@ -58,7 +58,7 @@ export const SaleManagement = () => {
         initialValues: {
             date: null as Date | null,
             customerName: "",
-            items: [] as { name: string; quantity: number, price: number , stock : number }[],
+            items: [] as { name: string; quantity: number, price: number, stock: number }[],
         },
         validationSchema: saleValidationSchema,
         onSubmit: async (values, { resetForm }) => {
@@ -80,10 +80,10 @@ export const SaleManagement = () => {
                 navigate("/dashboard/sales");
                 resetForm();
             } catch (error) {
-                    toast.error((error instanceof AxiosError)? 
-                        error.response?.data.message : 
-                        "Error in Submitting"
-                    )
+                toast.error((error instanceof AxiosError) ?
+                    error.response?.data.message :
+                    "Error in Submitting"
+                )
             }
         }
     });
@@ -91,8 +91,8 @@ export const SaleManagement = () => {
     const handleAddItem = (itemName: string) => {
         if (!formik.values.items.find(i => i.name === itemName)) {
             const matchedItem = items.find(i => i.name === itemName);
-            console.log(matchedItem);
             if (!matchedItem) return;
+            if (matchedItem.quantity <= 0) toast.error("Item is out of stock");
             formik.setFieldValue("items", [
                 ...formik.values.items,
                 {
@@ -217,7 +217,7 @@ export const SaleManagement = () => {
                                                     <td className="px-4 py-2 text-center">
                                                         <div className="flex items-center justify-center space-x-2">
                                                             <Button
-                                                                disabled= {item.quantity === 1}
+                                                                disabled={item.quantity === 1}
                                                                 type="button"
                                                                 size="sm"
                                                                 variant="outline"
@@ -227,7 +227,7 @@ export const SaleManagement = () => {
                                                             </Button>
                                                             <span>{item.quantity}</span>
                                                             <Button
-                                                                disabled = {item.quantity === item.stock}
+                                                                disabled={item.quantity === item.stock}
                                                                 type="button"
                                                                 size="sm"
                                                                 variant="outline"
@@ -275,7 +275,7 @@ export const SaleManagement = () => {
                             columns={saleColumns}
                             data={sales}
                             itemsPerPage={itemsPerPage}
-                            onPageChange={(page)=>{
+                            onPageChange={(page) => {
                                 setCurrentPage(page)
                             }}
                             totalItems={totalDataCount}
