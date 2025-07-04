@@ -92,7 +92,10 @@ export const SaleManagement = () => {
         if (!formik.values.items.find(i => i.name === itemName)) {
             const matchedItem = items.find(i => i.name === itemName);
             if (!matchedItem) return;
-            if (matchedItem.quantity <= 0) toast.error("Item is out of stock");
+            if (matchedItem.quantity <= 0) {
+                toast.error("Item is out of stock");
+                return;
+            }
             formik.setFieldValue("items", [
                 ...formik.values.items,
                 {
